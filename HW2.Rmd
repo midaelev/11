@@ -1,0 +1,153 @@
+---
+title: "HW2"
+author: "Mida"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+##HW2-1
+
+```{r}
+install.packages("dplyr")
+install.packages("dslabs")
+library(dplyr)
+library(dslabs)
+data(murders)
+dim(murders)
+str(murders)
+murders <- cbind(murders, rate = (murders$total/murders$population)*100000)
+murders <- cbind(murders, rank = rank(-murders$rate))
+str(murders)
+print(murders$state)
+print(murders$abb)
+top_5 <- head(murders[order(murders$rank),],5)
+print(top_5)
+no_south <- subset(murders, region != "South")
+dim(no_south)
+murders_nw <- subset(murders,region %in% c("Northeast", "West"))
+dim(murders_nw)
+str(murders_nw)
+my_states <- murders_nw[murders_nw$rate < 1,]
+print(my_states[,c("state","rate","rank")])
+data(murders)
+my_states2 <- murders_nw %>%
+  filter(rate < 1) %>%
+  select(state,rate,rank)
+print(my_states2)
+```
+##HW2-2
+
+```{r}
+#install.packages("NHANES")
+#install.packages("dplyr")
+library(dplyr)
+library(NHANES)
+data(NHANES)
+data(BPSysAve)
+str(NHANES) #Age variable contains the age information, and they in in <int> type
+NHANES_my <- NHANES %>%
+  filter(Age >= 20 & Age <= 29 & Gender == "female")
+print(NHANES_my)
+ref <- NHANES_my %>%
+  summarise(
+    mean_b <- mean(BPSysAve, na.rm = TRUE),
+    sd_b <- sd(BPSysAve, na.rm = TRUE)
+  )
+print(ref) #so mean value is 108 and standard deviation is 10.1
+class(ref)
+
+ref_avg <- NHANES %>%
+  filter(Age >= 20 & Age <= 29 & Gender == "female") %>%
+  summarise(mean_b = mean(BPSysAve, na.rm = TRUE))%>%
+  pull(mean_b)
+print(ref_avg)
+class(ref_avg) # the type is numeric
+
+
+ref_min_n_max <- NHANES_my %>%
+  summarise(
+    min_b = min(BPSysAve, na.rm = TRUE),
+    max_b = max(BPSysAve, na.rm = TRUE)
+  )
+print(ref_min_n_max)
+
+ref_age <- NHANES %>%
+  filter(Gender == "female") %>%
+  group_by(Age)%>%
+  summarise(
+    mean_age = mean(BPSysAve, na.rm = TRUE),
+    sd_age = sd(BPSysAve, na.rm = TRUE)
+  )
+print(ref_age)
+
+ref_age_male <- NHANES %>%
+  filter(Gender == "male") %>%
+  group_by(Age)%>%
+  summarise(
+    mean_age = mean(BPSysAve, na.rm = TRUE),
+    sd_age = sd(BPSysAve, na.rm = TRUE)
+  )
+print(ref_age_male)
+
+summary_table <- NHANES %>%
+  group_by(Gender, Age) %>%
+  summarise(
+    mean_b = mean(BPSysAve, na.rm = TRUE),
+    sd_b = sd(BPSysAve, na.rm = TRUE)
+  )
+print(summary_table)
+
+result <- NHANES %>%
+  filter(Age >= 40 & Age <= 49 & Gender == "male") %>%
+  group_by(Race1) %>%
+  summarise(
+    mean_b = mean(BPSysAve, na.rm = TRUE)
+  ) %>%
+  arrange(mean_b)
+
+print(result)
+```
+##HW2-3
+
+
+```{r cars}
+#install.packages("dplyr")
+#install.packages("dslabs")
+library(dplyr)
+library(dslabs)
+data(murders)
+gdp = read.csv("/Users/limingda/Desktop/STA 001/bea-gdp-by-state.csv")
+str(murders)
+str(gdp)
+murders_GDP <- murders %>%
+  left_join(gdp, by = c("state"="Area"))
+dim(gdp)
+dim(murders_GDP) #the number is as I expected because there are 51 ares in the US
+
+murders_GDP <- murders_GDP %>%
+  left_join(gdp %>% filter(X2017 > 0)) %>%
+  mutate(murders_rate = (total*100000)/population)
+
+
+plot(murders_GDP$X2017, murders_GDP$murders_rate)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
