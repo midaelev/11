@@ -1,0 +1,325 @@
+---
+title: "HW3"
+author: "Mida"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##HW3-1
+
+
+
+```{r}
+
+gapminder<-readRDS("gapminder.rds")
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(ggsci) # selected colors templates for ggplot2
+
+gapminder<-readRDS("gapminder.rds")
+data(gapminder)
+str(gapminder)
+
+gapminder_1962 <- gapminder %>%
+  filter(year == 1962)
+
+gapminder_1962 %>%
+  ggplot(aes(x = fertility, y = life_expectancy, color = continent))+
+  geom_point(alpha = 0.4)+
+  facet_wrap(~continent)+ #group by continent
+  geom_smooth(method="loess",se = TRUE)+
+  labs(
+    title="fertility versus life expectancy",
+    x="fertility",
+    y="life expectancy",
+    color="continent"
+  )
+
+  theme_minimal()
+```
+
+
+##HW3-2
+
+```{r}
+gapminder_1962_2012 <- gapminder %>%
+  filter(year %in% c(1962,2012))
+
+ggplot(gapminder_1962_2012, aes(x = fertility, y = life_expectancy,
+                                color = continent))+
+  geom_point(alpha = 0.4) +
+  facet_wrap(~year)+
+  labs(title = "GDP per capita versus life expectancy: 1962 vs. 2012",
+       x = "fertility",
+       y = "life expectancy",
+       color = "continent"
+  )+
+  theme_minimal()
+```
+
+##HW3-3
+
+```{r}
+gapminder_10year <- gapminder %>%
+  filter(year %in% c(1960,1970,1980,1990,2000,2010))
+
+ggplot(gapminder_10year, aes(x = fertility, y = life_expectancy,
+                             color = continent)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method="loess",se = TRUE)+
+  facet_wrap(~ year) +
+  labs(title = "fertility vs. Life Expectancy for every 10 years from 1960",
+       x = "fertility",
+       y = "Life Expectancy",
+       color = "Continent") +
+  theme_minimal()
+```
+
+##HW3-4
+
+```{r}
+gapminder_1960_2010 <- gapminder %>%
+  filter(year %in% c(1960,2010)) %>%
+  select(country, year,fertility, life_expectancy)
+
+
+gapminder_change <- gapminder_1960_2010 %>%
+  group_by(country) %>%
+  summarise(
+    fertility_1960 = fertility[year == 1960],  
+    fertility_2010 = fertility[year == 2010],  
+    life_exp_1960 = life_expectancy[year == 1960], 
+    life_exp_2010 = life_expectancy[year == 2010],  
+    fertility_change = fertility_2010 - fertility_1960,
+    life_exp_change = life_exp_2010 - life_exp_1960,
+  )
+
+fertility_changes1 <- gapminder_change %>%
+  arrange(fertility_change) %>%
+  head(5) 
+
+fertility_changes2 <- gapminder_change %>%
+  arrange(desc(fertility_change)) %>%
+  head(5) 
+
+life_exp_changes1 <- gapminder_change %>%
+  arrange(life_exp_change) %>%
+  head(5) 
+
+life_exp_changes2 <- gapminder_change %>%
+  arrange(desc(life_exp_change)) %>%
+  head(5) 
+
+print(fertility_changes1)
+print(fertility_changes2)
+print(life_exp_changes1)
+print(life_exp_changes2)
+# from the four print codes, Costa Rica is improving fertility the least; 
+# Niger is improving fertility the most; 
+# Haiti is improving life expectancy the least; 
+# China is improving the life expectancy the most.
+# As we can see from the graphs above, Europe is relatively constant,
+# but Africa is accelerated fast.
+```
+##HW3-5
+
+```{r}
+gapminder_his <- gapminder %>%
+  filter(year == 1962)
+
+ggplot(gapminder_his, aes(x = gdp/(population*365)))+
+  geom_histogram(color = "white", fill = "lightblue")+
+  labs(
+    title = "histogram of per person per day GDP for the year 1962",
+    x = "countries",
+    y = "per person per day GDP for the year 1962"
+    )+
+  theme_minimal()
+```
+
+##HW3-6
+
+```{r}
+gapminder_region <- gapminder %>%
+  filter(year == 1962) %>%
+  mutate(gdp_per_day = gdp / population / 365)
+  
+gapminder_medians <- gapminder_region %>%
+  group_by(region) %>%
+  summarise(median_gdp = median(gdp_per_day, na.rm = TRUE)) %>%
+  arrange(median_gdp)
+
+gapminder_region$region <- factor(gapminder_region$region,
+                                  level = gapminder_medians$region)
+
+ggplot(gapminder_region, aes(x = region, y = gdp_per_day)) +
+  geom_boxplot(fill = "lightblue", color = "white") +
+  scale_y_continuous(trans = "log2")+
+  labs(
+    title = "GDP per erson per day by Region in 1962",
+    x = "Region",
+    y = "GDP per Person per Day"
+  ) +
+  theme_minimal()
+```
+##library
+```{r}
+#install.packages("dplyr")
+#install.packages("dslabs")
+#library(ggplot2)
+#library(dplyr)
+#library(ggsci)
+```
+
+
+
+##HW3-7
+
+```{r}
+gapminder_region <- gapminder_region %>%
+  mutate(group = case_when(
+    region %in% c("Western Europe", "Northern Europe", "Southern Europe", 
+                  "Northern America", "Australia and New Zealand") ~ "West",
+    region %in% c("Eastern Asia", "South-Eastern Asia") ~ "East Asia",
+    region %in% c("Caribbean", "Central America", 
+                  "South America") ~ "Latin America",
+    region %in% c("Eastern Africa", "Middle Africa", "Southern Africa",
+                  "Western Africa") ~ "Sub-Saharan",
+    TRUE ~ "Others"
+  ))
+
+
+gapminder_region$group <- factor(gapminder_region$group, 
+                                 levels = c("Others", "Latin America",
+                                            "East Asia", "Sub-Saharan", "West"))
+
+by_group <- ggplot(gapminder_region, aes(x = group, y = gdp_per_day))+
+  geom_boxplot(fill = "lightblue",color = "white")+
+  geom_jitter()+
+  labs(
+    x = "group",
+    y = "GDP per day",
+    title = "group vs. GDP per day"
+  )+
+  theme_minimal()
+
+by_group # we can see that west group obviously has higher gdp per day
+```
+
+##HW3-8
+
+```{r}
+#install.packages("ggridges")
+library(ggridges)
+ridge_plot <- ggplot(gapminder_region,aes(x = gdp_per_day, y = group))+
+  geom_density_ridges(jittered_points = TRUE)+
+  labs(
+    title = "GDP per day in different groups",
+    x = "GDP per day",
+    y = "Groups"
+  ) +
+  theme_minimal()
+
+ridge_plot
+```
+##HW3-9
+
+```{r}
+gapminder_plot <- gapminder %>%
+  filter(year %in% seq(1960, 2010, by = 10)) %>%
+  mutate(gdp_per_day = gdp / population / 365) %>%
+  mutate(group = case_when(
+    region %in% c("Western Europe", "Northern Europe", "Southern Europe",
+                  "Northern America", "Australia and New Zealand") ~ "West",
+    region %in% c("Eastern Asia", "South-Eastern Asia") ~ "East Asia",
+    region %in% c("Caribbean", "Central America",
+                  "South America") ~ "Latin America",
+    region %in% c("Eastern Africa", "Middle Africa", "Southern Africa",
+                  "Western Africa") ~ "Sub-Saharan",
+    TRUE ~ "Others"
+  ))%>%
+  group_by(year, group)
+  
+
+str(gapminder_plot)
+
+ggplot(gapminder_plot, aes(x = group, y = gdp_per_day))+
+  geom_boxplot(fill = "lightblue", color = "white")+
+  facet_wrap(~ year, ncol = 2)+
+  labs(
+    x = "groups",
+    y = "GDP per day",
+    title = "GDP per day vs. groups"
+  )+
+  theme_minimal()
+
+ggplot(gapminder_plot,aes(x = gdp_per_day, y = group))+
+  geom_density_ridges(jittered_points = TRUE)+
+  facet_wrap(~ year, ncol = 2)
+  labs(
+    title = "GDP per day in different groups",
+    x = "GDP per day",
+    y = "Groups"
+  ) +
+  theme_minimal()
+```
+##HW3-10
+
+```{r}
+baseline <- gapminder_plot %>% 
+  filter(year == 1960) %>% 
+  mutate(baseline_gdp = gdp_per_day) %>%
+  select(country, baseline_gdp, year)
+
+
+increase <- gapminder_plot %>%
+  filter(year != 1960) %>%
+  left_join(baseline, by = "country") %>%
+  mutate(increase_percentage = 
+           ((gdp_per_day - baseline$baseline_gdp)/baseline$baseline_gdp) * 100)
+
+
+ggplot(increase, aes(x = year.x, y = increase_percentage)) + 
+  geom_boxplot(fill = "lightblue", color = "white") + 
+  facet_wrap(~year.x)
+  labs(
+    x = "Year",
+    y = "Percent increase",
+    title = "Percent increase in GDP per day",
+    fill = "group"
+  ) + 
+  theme_minimal()
+```
+
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
