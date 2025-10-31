@@ -1,0 +1,162 @@
+---
+title: '111'
+author: "Mida"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+```{r}
+
+```
+## HW1-1
+
+```{r}
+x = c(3)
+log(10^x)
+log10(x^10)
+log(exp(x)) # so the answer is this one
+exp(log(x, base = 2))
+```
+##HW1-2
+
+```{r}
+x <- c("1", "3", "5")
+class(x)
+x <- as.integer(x)
+is.integer(x)
+```
+##HW1-3
+
+```{r}
+#install.packages("dslabs")
+library(dslabs)
+class(na_example)
+str(na_example)
+Mean <- mean(na_example) #The result is NA becuase there are na values in na_example
+valid_mean <- mean(na_example[!is.na(na_example)])
+```
+
+
+##HW1-4
+
+```{r}
+tem = c(35,88,42,84,81,30)
+city = c("Beijing","Lagos","Paris","Rio de Janeiro","San Juan", "Toronto")
+names(tem) = city
+
+tem
+
+tem[1:3]
+tem["Paris"]
+tem["San Juan"]
+
+city_temps = data.frame(Name = city, Temperature = tem)
+city_temps
+
+celsius <- (5/9) * (tem - 32)
+celsius
+```
+##HW1-5
+
+
+```{r}
+library(dslabs)
+class(murders)
+dim(murders)
+str(murders) #The answer of the 5.(2) is c
+#View(murders)
+a <- murders$abb
+class(a)
+b <- murders[,"abb"]
+identical(a,b)
+class(murders$region)
+c <- levels(murders$region)
+length(c)
+table(murders$region)
+pop <- murders$population
+pop <- sort(pop)
+pop[1]
+order(murders$population)[1]
+which.min(murders$population)
+murders$state[51]
+```
+##HW1-6
+
+```{r}
+x <- c(1,2,-3,4)
+if (all(x>0)) {
+  print("All positive")
+} else{
+  print("Not all positive")
+}
+```
+##HW1-7
+
+```{r}
+#first question should be d because it has to be all false to make all(!x) false
+x <- 3
+my_func <- function(y){
+  x <- 5
+  y+5
+}
+print(x)
+```
+##HW1-8
+
+```{r}
+compute_s_n <- function(n) {
+  sum <- 0
+  for (i in 1:n) {
+    sum <- sum + i^2
+  }
+  return(sum)
+}
+
+s_n <- vector("numeric", 25)
+for (i in 1:25){
+  s_n[i] <- compute_s_n(i)
+}
+print(s_n)
+
+s_n <- sapply(1:25, compute_s_n)
+print(s_n)
+
+compute_s_n <- function(n) {
+  sum <- 0
+  for (i in 1:n) {
+    sum <- sum + i^2
+  }
+  sum_formula <- n * (n + 1) * (2 * n + 1) / 6
+  return(list(calculate = sum, accurate = sum_formula))
+}
+result <- compute_s_n(10)
+print(result)
+```
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
