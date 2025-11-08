@@ -7,3 +7,5 @@ The codes that I got most impression were codes in checking dataframes, such as 
 With these functions, it's easier to evaluate data.
 
 Then, I learnt to use ggplot to make visualizations of data in boxplot, scatter points, line graph, etc. It provides me flexible approaches to show the data.
+
+The fourth assignment didn't need to write codes, but I leant the basic knowledge of probability and different theories and formulas to calculate different probabilities.
