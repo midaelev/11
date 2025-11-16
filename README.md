@@ -9,3 +9,5 @@ With these functions, it's easier to evaluate data.
 Then, I learnt to use ggplot to make visualizations of data in boxplot, scatter points, line graph, etc. It provides me flexible approaches to show the data.
 
 The fourth assignment didn't need to write codes, but I leant the basic knowledge of probability and different theories and formulas to calculate different probabilities.
+
+I practiced what different probability models were and how to calculate them in HW5. There are several formulas, and those simbols are hard to remember. But as long as I figured out the inside logic, probability becomes more friendly.
